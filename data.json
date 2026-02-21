@@ -1,0 +1,68 @@
+{
+    "rates": [
+        {
+            "id": "1",
+            "metal": "Gold",
+            "purityLabel": "24K",
+            "purityPercentage": "99.9%",
+            "price": 78430,
+            "currency": "INR",
+            "unit": "10 Grams",
+            "colorClass": "bg-gold-400"
+        },
+        {
+            "id": "2",
+            "metal": "Gold",
+            "purityLabel": "22K",
+            "purityPercentage": "91.6%",
+            "price": 72200,
+            "currency": "INR",
+            "unit": "10 Grams",
+            "colorClass": "bg-gold-500"
+        },
+        {
+            "id": "3",
+            "metal": "Gold",
+            "purityLabel": "18K",
+            "purityPercentage": "75.0%",
+            "price": 59730,
+            "currency": "INR",
+            "unit": "10 Grams",
+            "colorClass": "bg-gold-600"
+        },
+        {
+            "id": "4",
+            "metal": "Silver",
+            "purityLabel": "Ag",
+            "purityPercentage": "99.9%",
+            "price": 91500,
+            "currency": "INR",
+            "unit": "1 Kg",
+            "colorClass": "bg-silver-400"
+        }
+    ],
+    "media": [
+        {
+            "id": "1",
+            "type": "image",
+            "url": "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=1200&q=80",
+            "title": "Exquisite Gold Collection"
+        },
+        {
+            "id": "2",
+            "type": "image",
+            "url": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1200&q=80",
+            "title": "Timeless Elegance"
+        },
+        {
+            "id": "3",
+            "type": "image",
+            "url": "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1200&q=80",
+            "title": "Handcrafted Perfection"
+        }
+    ],
+    "settings": {
+        "shopName": "Jay Mataji Jewellers",
+        "logoUrl": ""
+    }
+}

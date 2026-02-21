@@ -4,11 +4,12 @@ import { MetalRate } from '../types';
 interface UpdateRatesModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onBack?: () => void;
   currentRates: MetalRate[];
   onSave: (updatedRates: MetalRate[]) => void;
 }
 
-const UpdateRatesModal: React.FC<UpdateRatesModalProps> = ({ isOpen, onClose, currentRates, onSave }) => {
+const UpdateRatesModal: React.FC<UpdateRatesModalProps> = ({ isOpen, onClose, onBack, currentRates, onSave }) => {
   const [editedRates, setEditedRates] = useState<MetalRate[]>(currentRates);
 
   useEffect(() => {
@@ -33,13 +34,13 @@ const UpdateRatesModal: React.FC<UpdateRatesModalProps> = ({ isOpen, onClose, cu
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4 animate-fade-in">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all">
-        <div className="bg-slate-800 px-6 py-4 flex justify-between items-center">
-          <h3 className="text-xl font-bold text-white font-serif">Update Daily Rates</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
+        <div className="bg-slate-800 px-6 py-4 flex items-center gap-4">
+          <button onClick={onBack || onClose} className="text-slate-400 hover:text-white transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
           </button>
+          <h3 className="text-xl font-bold text-white font-serif">Update Daily Rates</h3>
         </div>
         
         <form onSubmit={handleSubmit} className="p-6 max-h-[70vh] overflow-y-auto">

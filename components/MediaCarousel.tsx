@@ -38,7 +38,7 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({ media }) => {
 
   if (!media.length) {
     return (
-      <div className="w-full max-w-6xl mx-auto mt-8 flex items-center justify-center bg-slate-200 rounded-2xl aspect-video md:aspect-[21/9]">
+      <div className="w-full max-w-6xl mx-auto mt-8 flex items-center justify-center bg-slate-200 dark:bg-slate-800 rounded-2xl aspect-video md:aspect-[21/9] transition-colors duration-300">
         <p className="text-slate-500 font-serif text-lg">No media available to display.</p>
       </div>
     );
@@ -47,7 +47,7 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({ media }) => {
   return (
     <div className="w-full max-w-6xl mx-auto mt-8 relative group">
       {/* Main Display Container */}
-      <div className="relative overflow-hidden rounded-2xl shadow-2xl bg-slate-900 aspect-video md:aspect-[21/9]">
+      <div className="relative overflow-hidden rounded-2xl shadow-2xl bg-slate-200 dark:bg-slate-900 aspect-video md:aspect-[21/9] transition-colors duration-300">
         {media.map((item, index) => (
           <div
             key={item.id}

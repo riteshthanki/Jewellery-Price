@@ -26,3 +26,11 @@ export interface MediaItem {
   url: string;
   title?: string;
 }
+
+export interface AppSettings {
+  shopName: string;
+  logoUrl: string;
+  darkLogoUrl?: string;
+  themePreference?: string;
+  customBackgroundUrl?: string;
+}

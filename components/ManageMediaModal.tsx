@@ -4,6 +4,7 @@ import { MediaItem } from '../types';
 interface ManageMediaModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onBack?: () => void;
   mediaItems: MediaItem[];
   onUpload: (files: FileList) => void;
   onDelete: (id: string) => void;
@@ -13,6 +14,7 @@ interface ManageMediaModalProps {
 const ManageMediaModal: React.FC<ManageMediaModalProps> = ({ 
   isOpen, 
   onClose, 
+  onBack,
   mediaItems, 
   onUpload, 
   onDelete,
@@ -93,13 +95,13 @@ const ManageMediaModal: React.FC<ManageMediaModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4 animate-fade-in">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="bg-slate-800 px-6 py-4 flex justify-between items-center shrink-0">
-          <h3 className="text-xl font-bold text-white font-serif">Manage Gallery</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
+        <div className="bg-slate-800 px-6 py-4 flex items-center gap-4 shrink-0">
+          <button onClick={onBack || onClose} className="text-slate-400 hover:text-white transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
           </button>
+          <h3 className="text-xl font-bold text-white font-serif">Manage Gallery</h3>
         </div>
 
         {/* Content */}
