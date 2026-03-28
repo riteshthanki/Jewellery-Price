@@ -82,7 +82,7 @@ function formatCurrency($amount, $currency = 'INR') {
         </div>
 
         <!-- Main Grid for Rates -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             <?php foreach ($rates as $rate): 
                 $circleStyle = ($rate['metal'] === 'Gold') 
                     ? 'bg-gradient-to-br from-yellow-400 to-amber-600 shadow-[0_0_20px_rgba(245,158,11,0.4)] text-black' 

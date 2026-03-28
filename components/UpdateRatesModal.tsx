@@ -55,7 +55,7 @@ const UpdateRatesModal: React.FC<UpdateRatesModalProps> = ({ isOpen, onClose, on
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 font-medium group-focus-within:text-amber-500 transition-colors">₹</span>
                   <input
                     type="number"
-                    value={rate.price}
+                    value={rate.price ?? ''}
                     onChange={(e) => handleChange(rate.id, e.target.value)}
                     className="w-full pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all font-mono text-lg text-slate-800"
                     placeholder="0.00"

@@ -41,16 +41,6 @@ const INITIAL_RATES: MetalRate[] = [
     unit: '10 Grams',
     colorClass: 'bg-gold-600',
   },
-  {
-    id: '4',
-    metal: 'Silver',
-    purityLabel: 'Ag',
-    purityPercentage: '99.9%',
-    price: 91500,
-    currency: 'INR',
-    unit: '1 Kg',
-    colorClass: 'bg-silver-400',
-  },
 ];
 
 const DEFAULT_MEDIA: MediaItem[] = [
@@ -77,6 +67,7 @@ const DEFAULT_MEDIA: MediaItem[] = [
 const DEFAULT_SETTINGS: AppSettings = {
   shopName: 'Jay Mataji Jewellers',
   logoUrl: '',
+  darkLogoUrl: '',
   themePreference: 'auto'
 };
 
@@ -128,72 +119,31 @@ const App: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // 1. Load Settings (including local logo blob)
+        // 1. Load Settings
         const localSettings = await dbService.getSettings();
         if (localSettings) {
-           // If we have a local logo ID/Url, check if we need to regenerate Blob URL
-           let activeSettings = { ...localSettings };
-           
-           // Load Light Logo
-           const logoBlob = await dbService.getFile('shop_logo');
-           if (logoBlob) {
-             activeSettings.logoUrl = URL.createObjectURL(logoBlob);
-           }
-
-           // Load Dark Logo
-           const darkLogoBlob = await dbService.getFile('shop_dark_logo');
-           if (darkLogoBlob) {
-             activeSettings.darkLogoUrl = URL.createObjectURL(darkLogoBlob);
-           }
-           
-           // Load Custom Background
-           const bgBlob = await dbService.getFile('custom_bg');
-           if (bgBlob) {
-             activeSettings.customBackgroundUrl = URL.createObjectURL(bgBlob);
-           }
-
            // Ensure themePreference exists
-           if (!activeSettings.themePreference) {
-             activeSettings.themePreference = 'auto';
+           if (!localSettings.themePreference) {
+             localSettings.themePreference = 'auto';
            }
-           setSettings(activeSettings);
+           setSettings(localSettings);
         }
 
         // 2. Load Rates
         const localRates = await dbService.getRates();
         if (localRates) {
-          setRates(localRates);
-        } else {
-            // If no local rates, try fetch from data.json (server fallback)
-            try {
-                const res = await fetch('data.json?t=' + Date.now());
-                if(res.ok) {
-                    const data = await res.json();
-                    if(data.rates) setRates(data.rates);
-                }
-            } catch(e) { /* ignore */ }
+          // Filter out Silver to ensure it's removed even if previously saved
+          const filteredRates = localRates.filter(rate => rate.metal !== 'Silver');
+          setRates(filteredRates);
         }
 
         // 3. Load Media
         const localMedia = await dbService.getMediaItems();
         if (localMedia && localMedia.length > 0) {
-          // Reconstruct Blob URLs for local files
-          const loadedMedia = await Promise.all(localMedia.map(async (item) => {
-            // Check if we have a stored file for this item
-            const fileBlob = await dbService.getFile(item.id);
-            if (fileBlob) {
-                return { ...item, url: URL.createObjectURL(fileBlob) };
-            }
-            return item; // Return as is (likely external URL)
-          }));
-          setMediaItems(loadedMedia);
-        } else {
-             // Fallback to constants only if DB is truly empty (first run)
-             // We don't fetch data.json for media to avoid conflict with local DB persistence priority
-             // setMediaItems(DEFAULT_MEDIA); // Optional: keep default
+          setMediaItems(localMedia);
         }
       } catch (error) {
-        console.error("Error loading local data:", error);
+        console.error("Error loading data:", error);
       }
     };
 
@@ -204,99 +154,55 @@ const App: React.FC = () => {
 
   const handleUpdateRates = async (updatedRates: MetalRate[]) => {
     setRates(updatedRates);
-    // 1. Save locally (Source of Truth)
     await dbService.saveRates(updatedRates);
-    
-    // 2. Try Sync to Server (Optional/Secondary)
-    try {
-      const formData = new FormData();
-      formData.append('action', 'update_rates');
-      formData.append('rates', JSON.stringify(updatedRates));
-      fetch('api.php', { method: 'POST', body: formData }).catch(() => {});
-    } catch (e) {
-      console.warn("Server sync failed, but local save worked.");
-    }
   };
 
   const handleUpdateSettings = async (newSettings: AppSettings) => {
-    // If the logoUrl is a blob URL, we keep it as is in state, 
-    // but we save the settings object to DB.
-    // The logo BLOB itself is saved separately in handleUploadLogo.
     setSettings(newSettings);
     await dbService.saveSettings(newSettings);
-
-    try {
-      const formData = new FormData();
-      formData.append('action', 'update_settings');
-      formData.append('settings', JSON.stringify(newSettings));
-      fetch('api.php', { method: 'POST', body: formData }).catch(() => {});
-    } catch(e) {
-      console.warn("Server sync failed.");
-    }
   }
 
   const handleUploadLogo = async (file: File): Promise<string | null> => {
     try {
-      // 1. Save to Local DB
-      await dbService.saveFile('shop_logo', file);
-      
-      // 2. Create URL
-      const localUrl = URL.createObjectURL(file);
-      
-      // 3. Update Settings immediately
-      const newSettings = { ...settings, logoUrl: localUrl };
-      setSettings(newSettings);
-      await dbService.saveSettings(newSettings);
-
-      // 4. Try upload to server (Secondary)
-      const formData = new FormData();
-      formData.append('action', 'upload_logo');
-      formData.append('logo', file);
-      fetch('api.php', { method: 'POST', body: formData }).catch(() => {});
-
-      return localUrl;
+      const url = await dbService.uploadFile(file);
+      if (url) {
+        const newSettings = { ...settings, logoUrl: url };
+        setSettings(newSettings);
+        await dbService.saveSettings(newSettings);
+      }
+      return url;
     } catch (e) {
-      console.error("Local logo save failed", e);
+      console.error("Logo upload failed", e);
       return null;
     }
   };
 
   const handleUploadDarkLogo = async (file: File): Promise<string | null> => {
     try {
-      // 1. Save to Local DB
-      await dbService.saveFile('shop_dark_logo', file);
-      
-      // 2. Create URL
-      const localUrl = URL.createObjectURL(file);
-      
-      // 3. Update Settings immediately
-      const newSettings = { ...settings, darkLogoUrl: localUrl };
-      setSettings(newSettings);
-      await dbService.saveSettings(newSettings);
-
-      return localUrl;
+      const url = await dbService.uploadFile(file);
+      if (url) {
+        const newSettings = { ...settings, darkLogoUrl: url };
+        setSettings(newSettings);
+        await dbService.saveSettings(newSettings);
+      }
+      return url;
     } catch (e) {
-      console.error("Local dark logo save failed", e);
+      console.error("Dark logo upload failed", e);
       return null;
     }
   };
 
   const handleUploadBackground = async (file: File): Promise<string | null> => {
     try {
-      // 1. Save to Local DB
-      await dbService.saveFile('custom_bg', file);
-      
-      // 2. Create URL
-      const localUrl = URL.createObjectURL(file);
-      
-      // 3. Update Settings immediately
-      const newSettings = { ...settings, customBackgroundUrl: localUrl, themePreference: 'custom' };
-      setSettings(newSettings);
-      await dbService.saveSettings(newSettings);
-
-      return localUrl;
+      const url = await dbService.uploadFile(file);
+      if (url) {
+        const newSettings = { ...settings, customBackgroundUrl: url };
+        setSettings(newSettings);
+        await dbService.saveSettings(newSettings);
+      }
+      return url;
     } catch (e) {
-      console.error("Local background save failed", e);
+      console.error("Background upload failed", e);
       return null;
     }
   };
@@ -310,63 +216,46 @@ const App: React.FC = () => {
         const id = 'media_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         const type = file.type.startsWith('video/') ? 'video' : 'image';
         
-        // 1. Save File Blob to DB
-        await dbService.saveFile(id, file);
-
-        // 2. Create Metadata
-        const newItem: MediaItem = {
-            id,
-            type: type as 'image' | 'video',
-            url: URL.createObjectURL(file), // Immediate display
-            title: file.name.split('.')[0]
-        };
-        newMediaItems.push(newItem);
+        // Upload File
+        const url = await dbService.uploadFile(file);
+        
+        if (url) {
+          // Create Metadata
+          const newItem: MediaItem = {
+              id,
+              type: type as 'image' | 'video',
+              url: url,
+              title: file.name.split('.')[0]
+          };
+          newMediaItems.push(newItem);
+        }
     }
 
     // Update State
     const updatedList = [...mediaItems, ...newMediaItems];
     setMediaItems(updatedList);
     
-    // Save Metadata to DB
+    // Save Metadata
     await dbService.saveMediaItems(updatedList);
-
-    // Try Server Sync (Optional)
-    try {
-        const formData = new FormData();
-        formData.append('action', 'upload_media');
-        filesArray.forEach(f => formData.append('files[]', f));
-        fetch('api.php', { method: 'POST', body: formData }).catch(console.error);
-    } catch(e) {}
   };
 
   const handleDeleteMedia = async (id: string) => {
+    const itemToDelete = mediaItems.find(item => item.id === id);
     const updatedList = mediaItems.filter(item => item.id !== id);
     setMediaItems(updatedList);
     
     // Remove from DB
-    await dbService.saveMediaItems(updatedList); // Update list
-    await dbService.deleteFile(id); // Remove blob
-
-    // Server Sync
-    try {
-        const formData = new FormData();
-        formData.append('action', 'delete_media');
-        formData.append('id', id);
-        fetch('api.php', { method: 'POST', body: formData }).catch(console.error);
-    } catch(e) {}
+    await dbService.saveMediaItems(updatedList);
+    
+    // Delete file from server if it exists
+    if (itemToDelete && itemToDelete.url) {
+      await dbService.deleteFile(itemToDelete.url);
+    }
   };
 
   const handleReorderMedia = async (reorderedItems: MediaItem[]) => {
     setMediaItems(reorderedItems);
     await dbService.saveMediaItems(reorderedItems);
-    
-    // Server Sync
-    try {
-        const formData = new FormData();
-        formData.append('action', 'reorder_media');
-        formData.append('media', JSON.stringify(reorderedItems));
-        fetch('api.php', { method: 'POST', body: formData }).catch(console.error);
-    } catch(e) {}
   };
 
   return (
@@ -385,12 +274,12 @@ const App: React.FC = () => {
         <div className="absolute inset-0 bg-black/40 pointer-events-none" />
       )}
 
-      <div className="max-w-7xl mx-auto px-4 py-8 md:py-12 pb-24 relative z-10">
+      <div className="w-full max-w-[120rem] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-8 md:py-12 xl:py-16 pb-24 relative z-10">
         {/* Header Section */}
         <DashboardHeader settings={settings} isDarkMode={isDarkMode} />
 
         {/* Main Grid for Rates */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-3 portrait:grid-cols-1 gap-6 xl:gap-10 portrait:gap-8 mb-12 xl:mb-20 portrait:mb-12">
           {rates.map((rate) => (
             <RateCard key={rate.id} rate={rate} />
           ))}

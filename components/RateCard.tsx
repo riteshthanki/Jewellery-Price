@@ -23,29 +23,29 @@ const RateCard: React.FC<RateCardProps> = ({ rate }) => {
       <div className="absolute -inset-0.5 bg-slate-200 rounded-2xl opacity-50 group-hover:opacity-100 blur-sm transition duration-500"></div>
       
       {/* Main Card Content - Pure White */}
-      <div className="relative h-full bg-white rounded-2xl p-6 flex flex-col items-center justify-between border border-slate-100 shadow-xl overflow-hidden">
+      <div className="relative h-full bg-white rounded-2xl p-6 xl:p-10 2xl:p-12 portrait:p-8 portrait:md:p-12 flex flex-col items-center justify-between border border-slate-100 shadow-xl overflow-hidden">
         
         {/* Header: Metal Type & Purity */}
         <div className="w-full flex flex-col items-center z-10">
-          <span className="text-xs font-bold tracking-[0.2em] uppercase mb-2 text-slate-400">
+          <span className="text-xs xl:text-sm 2xl:text-base portrait:text-sm portrait:md:text-xl font-bold tracking-[0.2em] uppercase mb-2 xl:mb-4 portrait:mb-4 text-slate-400">
             {rate.metal}
           </span>
-          <div className="flex items-baseline space-x-2">
-            <h3 className="text-3xl font-serif font-bold text-slate-800">
+          <div className="flex items-baseline space-x-2 xl:space-x-3">
+            <h3 className="text-3xl xl:text-5xl 2xl:text-6xl portrait:text-5xl portrait:md:text-7xl font-serif font-bold text-slate-800">
               {rate.purityLabel}
             </h3>
-            <span className="text-xs font-medium text-slate-500 bg-slate-50 px-2 py-1 rounded-full border border-slate-100">
+            <span className="text-xs xl:text-base 2xl:text-lg portrait:text-base portrait:md:text-2xl font-medium text-slate-500 bg-slate-50 px-2 py-1 xl:px-3 xl:py-1.5 portrait:px-4 portrait:py-2 rounded-full border border-slate-100">
               {rate.purityPercentage}
             </span>
           </div>
         </div>
 
         {/* Price Section */}
-        <div className="w-full py-8 flex flex-col items-center z-10">
-          <div className="text-5xl font-bold text-slate-900 tracking-tighter">
+        <div className="w-full py-8 xl:py-12 2xl:py-16 flex flex-col items-center z-10">
+          <div className="text-5xl xl:text-7xl 2xl:text-8xl portrait:text-7xl portrait:md:text-9xl font-bold text-slate-900 tracking-tighter">
             {formatPrice(rate.price)}
           </div>
-          <p className="text-xs text-slate-400 mt-2 font-medium uppercase tracking-wide">
+          <p className="text-xs xl:text-base 2xl:text-lg portrait:text-base portrait:md:text-2xl text-slate-400 mt-2 xl:mt-4 portrait:mt-4 font-medium uppercase tracking-wide">
             Per {rate.unit}
           </p>
         </div>
